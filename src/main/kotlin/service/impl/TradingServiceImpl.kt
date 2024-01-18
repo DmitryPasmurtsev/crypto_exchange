@@ -2,10 +2,10 @@ package service.impl
 
 import enums.Currency
 import enums.Status
-import exception.WalletException
-import exception.UserStatusException
 import exception.NoSuitableExchangeException
 import exception.TransactionException
+import exception.UserStatusException
+import exception.WalletException
 import exception.WrongPassphraseException
 import exchange.Exchange
 import service.TradingService

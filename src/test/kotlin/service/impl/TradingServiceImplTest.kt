@@ -20,10 +20,8 @@ class TradingServiceImplTest {
     private val user1 = User("111@gmail.com", "user1", Status.APPROVED)
     private val user2 = User("222@gmail.com", "user2", Status.APPROVED)
     private val wallet11 = Wallet("wallet11", "passphrase", user1)
-    private val wallet12 = Wallet("wallet12", "passphrase", user1)
     private val wallet21 = Wallet("wallet21", "passphrase", user2)
     private val exchange = Exchange("TestExchange")
-
 
     @BeforeEach
     fun setUp() {
@@ -47,7 +45,6 @@ class TradingServiceImplTest {
             tradingService.tradeTransaction(wallet11, wallet21, Currency.BITCOIN, amount, Currency.TON, exchange)
         assert(exchange.transactionHistory.contains(transaction))
     }
-
 
     @Test
     fun swap_shouldPerformSwapTransactionAndAddToTransactionHistory() {
@@ -101,7 +98,6 @@ class TradingServiceImplTest {
             )
         }
     }
-
 
     @Test
     fun addExchange_shouldAddAnExchange() {

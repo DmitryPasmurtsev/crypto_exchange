@@ -10,7 +10,7 @@ import java.math.BigDecimal
 import java.time.LocalDateTime
 
 class PersonalAccountServiceImpl : PersonalAccountService {
-    override fun getBalance(vararg wallets: Wallet) : MutableMap<Currency, BigDecimal> {
+    override fun getBalance(vararg wallets: Wallet): MutableMap<Currency, BigDecimal> {
         val totalBalance = mutableMapOf<Currency, BigDecimal>()
         for (wallet in wallets) {
             for ((currency, amount) in wallet.currencies) {
