@@ -11,12 +11,10 @@ import user.User
 import wallet.Wallet
 import java.math.BigDecimal
 import java.time.LocalDateTime
-import java.util.UUID
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class PersonalAccountServiceImplTest {
-    private val USER_ID = UUID.randomUUID()
     private val USER_EMAIL = "test@test.com"
     private val USER_FULL_NAME = "Test User"
     private val USER_STATUS = Status.APPROVED
@@ -52,11 +50,11 @@ class PersonalAccountServiceImplTest {
 
     @Test
     fun testGetBalanceForTwoWallets() {
-        wallet1.currencies[Currency.TON] = BigDecimal("100")
-        wallet1.currencies[Currency.BITCOIN] = BigDecimal("200")
+        wallet1.currencies[Currency.TON] = BigDecimal(100)
+        wallet1.currencies[Currency.BITCOIN] = BigDecimal(200)
 
-        wallet2.currencies[Currency.TON] = BigDecimal("500")
-        wallet2.currencies[Currency.ETHEREUM] = BigDecimal("300")
+        wallet2.currencies[Currency.TON] = BigDecimal(500)
+        wallet2.currencies[Currency.ETHEREUM] = BigDecimal(300)
 
         val expected = mapOf(
             Currency.TON to BigDecimal(600),
@@ -69,9 +67,9 @@ class PersonalAccountServiceImplTest {
 
     @Test
     fun testGetTransactionsForPeriod() {
-        val transaction1 = Transaction(wallet1, Currency.BITCOIN, BigDecimal("50"), LocalDateTime.now().minusDays(2))
-        val transaction2 = Transaction(wallet1, Currency.TON, BigDecimal("70"), LocalDateTime.now().minusDays(1))
-        val transaction3 = Transaction(wallet1, Currency.ETHEREUM, BigDecimal("100"), LocalDateTime.now())
+        val transaction1 = Transaction(wallet1, Currency.BITCOIN, BigDecimal(50), LocalDateTime.now().minusDays(2))
+        val transaction2 = Transaction(wallet1, Currency.TON, BigDecimal(70), LocalDateTime.now().minusDays(1))
+        val transaction3 = Transaction(wallet1, Currency.ETHEREUM, BigDecimal(100), LocalDateTime.now())
 
         exchange.transactionHistory.addAll(listOf(transaction1, transaction2, transaction3))
 
