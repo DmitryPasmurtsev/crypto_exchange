@@ -2,7 +2,10 @@ package service.impl
 
 import enums.Currency
 import enums.Status
+import exception.TransactionException
 import exception.UserStatusException
+import exception.WalletException
+import exception.WrongPassphraseException
 import exchange.Exchange
 import kotlin.test.assertEquals
 import org.junit.jupiter.api.BeforeEach
@@ -38,19 +41,65 @@ class TradingServiceImplTest {
 
     @Test
     fun trade_shouldPerformTradeTransactionAndAddToTransactionHistory() {
-        val amount = BigDecimal("100")
+        val amount = BigDecimal(100)
 
-        val transaction = tradingService.tradeTransaction(wallet11, wallet21, Currency.BITCOIN , amount, Currency.TON, exchange)
+        val transaction =
+            tradingService.tradeTransaction(wallet11, wallet21, Currency.BITCOIN, amount, Currency.TON, exchange)
         assert(exchange.transactionHistory.contains(transaction))
     }
+
 
     @Test
     fun swap_shouldPerformSwapTransactionAndAddToTransactionHistory() {
         val amount = BigDecimal(100)
         val randomNumber = 0
 
-        val transaction = tradingService.swapTransaction(wallet11, "passphrase", Currency.BITCOIN, amount, Currency.ETHEREUM, exchange, randomNumber)
+        val transaction = tradingService.swapTransaction(
+            wallet11,
+            "passphrase",
+            Currency.BITCOIN,
+            amount,
+            Currency.ETHEREUM,
+            exchange,
+            randomNumber
+        )
         assert(exchange.transactionHistory.contains(transaction))
+    }
+
+    @Test
+    fun swap_shouldThrowTransactionException_whenRandomNumberNotInRange() {
+        val amount = BigDecimal(100)
+        val randomNumber = 50
+
+        assertThrows<TransactionException> {
+            tradingService.swapTransaction(
+                wallet11,
+                "passphrase",
+                Currency.BITCOIN,
+                amount,
+                Currency.ETHEREUM,
+                exchange,
+                randomNumber
+            )
+        }
+    }
+
+    @Test
+    fun swap_shouldThrowPassphraseException_whenPassphraseIsWrong() {
+        val amount = BigDecimal(100)
+        val randomNumber = 0
+
+        assertThrows<WrongPassphraseException> {
+            tradingService.swapTransaction(
+                wallet11,
+                "wrong_passphrase",
+                Currency.BITCOIN,
+                amount,
+                Currency.ETHEREUM,
+                exchange,
+                randomNumber
+            )
+        }
     }
 
 
@@ -62,8 +111,13 @@ class TradingServiceImplTest {
     }
 
     @Test
-    fun getAllExchanges_shouldReturnAllExchanges() {
-        assertEquals(tradingService.getAvailableExchanges(Currency.BITCOIN, Currency.ETHEREUM).size, 1)
+    fun getAvailableExchanges_whenAvailableExchangeExists() {
+        assertEquals(1, tradingService.getAvailableExchanges(Currency.BITCOIN, Currency.ETHEREUM).size)
+    }
+
+    @Test
+    fun getAvailableExchanges_whenAvailableExchangeNotExists() {
+        assertEquals(0, tradingService.getAvailableExchanges(Currency.TON, Currency.ETHEREUM).size)
     }
 
     @Test
@@ -72,6 +126,15 @@ class TradingServiceImplTest {
         val amount = BigDecimal(100)
 
         assertThrows<UserStatusException> {
+            tradingService.tradeTransaction(wallet11, wallet21, Currency.BITCOIN, amount, Currency.TON, exchange)
+        }
+    }
+
+    @Test
+    fun trade_shouldThrowUserWalletException_whenNotEnoughMoney() {
+        val amount = BigDecimal(2000)
+
+        assertThrows<WalletException> {
             tradingService.tradeTransaction(wallet11, wallet21, Currency.BITCOIN, amount, Currency.TON, exchange)
         }
     }
