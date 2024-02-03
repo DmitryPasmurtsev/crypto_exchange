@@ -3,17 +3,16 @@ package service.impl
 import enums.Currency
 import enums.Status
 import exchange.Exchange
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import service.PersonalAccountService
-import transaction.Transaction
+import transaction.SwapTransaction
 import user.User
 import wallet.Wallet
 import java.math.BigDecimal
 import java.time.LocalDateTime
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
-import transaction.SwapTransaction
 
 class PersonalAccountServiceImplTest {
     private val USER_EMAIL = "test@test.com"
@@ -117,12 +116,19 @@ class PersonalAccountServiceImplTest {
     fun `compare speed of sequence and stream`() {
         var list1 = createUsers()
         var list2 = createUsers()
-        assertTrue(getTimeOfSimpleListOperation(list1) > getTimeOfSequenceOperation(list2))
+
+        val timeOfSequenceOperation = getTimeOfSequenceOperation(list1)
+        val timeOfSimpleListOperation = getTimeOfSimpleListOperation(list2);
+
+        assertTrue(timeOfSimpleListOperation > timeOfSequenceOperation)
     }
 
     private fun createUsers(): MutableList<User> {
         var list = mutableListOf<User>()
-        for (i in 0..10000) {
+        //Начиная примерно со 100 тысяч элементов метод с использованием sequence
+        //начинает значительно выигрывать в скорости.
+        //Чем больше количество элементов в списке, тем больше становится разница в скорости.
+        for (i in 0..1000000) {
             list += User(i.toString(), i.toString())
             if (i % 3 == 0) {
                 list[i].fullName = USER_FULL_NAME
