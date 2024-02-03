@@ -1,4 +1,3 @@
 package exception
 
-class TransactionException(message: String) : RuntimeException(message) {
-}
+class TransactionException(message: String) : RuntimeException(message)

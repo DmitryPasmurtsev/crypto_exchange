@@ -1,12 +1,14 @@
 package user
 
+import enums.Currency
 import wallet.Wallet
 import enums.Status
-import java.util.UUID
+import java.math.BigDecimal
+import java.util.*
 
-class User(
+data class User(
     val id: UUID,
-    var email: String,
+    var email: String?,
     var fullName: String,
     var status: Status
 ) {
@@ -16,6 +18,12 @@ class User(
         set(value) {
             walletMutableSet.addAll(value)
         }
+
+    init {
+        val wallet= Wallet("newWallet","newPass",this)
+        wallet.currencies+= mapOf(Currency.BITCOIN to BigDecimal.TEN)
+        wallets= mutableSetOf(wallet)
+    }
 
     constructor(email: String, fullName: String) : this(
         UUID.randomUUID(),
@@ -31,6 +39,19 @@ class User(
         status
     )
 
+    fun destruction(user: User): String {
+        val (id, email, _, status) = user
+        return "user with id $id have status $status"
+    }
+
+    fun getEmailInUpperCaseAndWithoutDomain(user: User): User {
+        user.email = user.email?.substringBefore('@')?.uppercase() ?: ""
+        return user
+    }
+
 }
+
+val User.walletsAmount: Int
+    get() = this.wallets.size
 
 

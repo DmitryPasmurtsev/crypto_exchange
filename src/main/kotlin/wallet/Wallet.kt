@@ -5,7 +5,7 @@ import user.User
 import java.math.BigDecimal
 import java.util.UUID
 
-class Wallet(
+data class Wallet(
     val id: UUID,
     var name: String,
     var isCold: Boolean,

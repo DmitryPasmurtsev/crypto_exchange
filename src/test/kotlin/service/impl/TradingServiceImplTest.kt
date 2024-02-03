@@ -11,6 +11,8 @@ import kotlin.test.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import transaction.SwapTransaction
+import transaction.TradeTransaction
 import user.User
 import wallet.Wallet
 import java.math.BigDecimal
@@ -135,4 +137,104 @@ class TradingServiceImplTest {
         }
     }
 
+    @Test
+    fun `test range creation with default size`() {
+        val expected = 0..25
+        assertEquals(expected, tradingService.createRange())
+    }
+
+    @Test
+    fun `test range creation with given size`() {
+        val expected = 3..10
+        assertEquals(expected, tradingService.createRange(3, 10))
+    }
+
+    @Test
+    fun `test filter users list by wallet amount`() {
+        user1.wallets =
+            mutableSetOf(
+                Wallet("name1", "passphrase", user1),
+                Wallet("name2", "passphrase", user1),
+                Wallet("name3", "passphrase", user1)
+            )
+        user2.wallets =
+            mutableSetOf(
+                Wallet("name1", "passphrase", user2)
+            )
+        val expected: List<User> = listOf(user1)
+
+        val actual: List<User> = tradingService.getUsersFilteredByWalletAmount(listOf(user1, user2))
+
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun `test create map from list associated by id`() {
+        val list = listOf(user1)
+        val expected = mapOf(user1.id to user1)
+
+        val actual = tradingService.createMapFromListAssociatedById(list)
+
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun `test create map from list associated with status`() {
+        val list = listOf(user1)
+        val expected = mapOf(user1 to user1.status)
+
+        val actual = tradingService.createMapFromListAssociatedWithStatus(list)
+
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun `test get wallet from transaction when swap transaction`() {
+        val transaction = SwapTransaction(
+            wallet11,
+            Currency.BITCOIN,
+            BigDecimal(50),
+            Currency.TON,
+            BigDecimal(60),
+        )
+
+        val actual = tradingService.getWalletFromTransaction(transaction)
+
+        assertEquals(transaction.initiator, actual)
+    }
+
+    @Test
+    fun `test get wallet from transaction when trade transaction`() {
+        val transaction = TradeTransaction(
+            wallet11,
+            Currency.BITCOIN,
+            BigDecimal(50),
+            wallet21,
+            Currency.ETHEREUM,
+            BigDecimal(60)
+        )
+
+        val actual = tradingService.getWalletFromTransaction(transaction)
+
+        assertEquals(transaction.receiver, actual)
+    }
+
+    @Test
+    fun `test fibonacci`() {
+        val expected: Long = 55
+
+        val actual = tradingService.fibonacci(10)
+
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun `swap currencies test`() {
+        val pair = Currency.BITCOIN to Currency.ETHEREUM
+        val expected = Currency.ETHEREUM to Currency.BITCOIN
+
+        val actual = pair.swapCurrenciesInRate()
+
+        assertEquals(expected, actual)
+    }
 }
