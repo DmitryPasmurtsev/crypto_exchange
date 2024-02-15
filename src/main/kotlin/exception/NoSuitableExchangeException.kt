@@ -1,4 +1,3 @@
 package exception
 
-class NoSuitableExchangeException(message: String) : RuntimeException(message) {
-}
+class NoSuitableExchangeException(message: String) : RuntimeException(message)

@@ -3,20 +3,20 @@ package service.impl
 import enums.Currency
 import enums.Status
 import exchange.Exchange
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import service.PersonalAccountService
-import transaction.Transaction
+import transaction.SwapTransaction
 import user.User
 import wallet.Wallet
 import java.math.BigDecimal
 import java.time.LocalDateTime
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 class PersonalAccountServiceImplTest {
     private val USER_EMAIL = "test@test.com"
-    private val USER_FULL_NAME = "Test User"
+    private val USER_FULL_NAME = "Amazing User"
     private val USER_STATUS = Status.APPROVED
 
     private lateinit var personalAccountService: PersonalAccountService
@@ -32,7 +32,7 @@ class PersonalAccountServiceImplTest {
         wallet1 = Wallet("TestWallet1", "passphrase1", user)
         wallet2 = Wallet("TestWallet2", "passphrase2", user)
 
-        personalAccountService = PersonalAccountServiceImpl()
+        personalAccountService = PersonalAccountServiceImpl
     }
 
     @Test
@@ -67,9 +67,30 @@ class PersonalAccountServiceImplTest {
 
     @Test
     fun testGetTransactionsForPeriod() {
-        val transaction1 = Transaction(wallet1, Currency.BITCOIN, BigDecimal(50), LocalDateTime.now().minusDays(2))
-        val transaction2 = Transaction(wallet1, Currency.TON, BigDecimal(70), LocalDateTime.now().minusDays(1))
-        val transaction3 = Transaction(wallet1, Currency.ETHEREUM, BigDecimal(100), LocalDateTime.now())
+        val transaction1 = SwapTransaction(
+            wallet1,
+            Currency.BITCOIN,
+            BigDecimal(50),
+            Currency.TON,
+            BigDecimal(60),
+            LocalDateTime.now().minusDays(2)
+        )
+        val transaction2 = SwapTransaction(
+            wallet1,
+            Currency.TON,
+            BigDecimal(50),
+            Currency.ETHEREUM,
+            BigDecimal(60),
+            LocalDateTime.now().minusDays(1)
+        )
+        val transaction3 = SwapTransaction(
+            wallet1,
+            Currency.BITCOIN,
+            BigDecimal(20),
+            Currency.ETHEREUM,
+            BigDecimal(40),
+            LocalDateTime.now()
+        )
 
         exchange.transactionHistory.addAll(listOf(transaction1, transaction2, transaction3))
 
@@ -87,7 +108,54 @@ class PersonalAccountServiceImplTest {
     fun testAddWallet() {
         personalAccountService.addWallet(user, wallet1)
 
-        assertEquals(1, user.wallets.size)
+        assertEquals(2, user.wallets.size)
         assertTrue(user.wallets.contains(wallet1))
+    }
+
+    @Test
+    fun `compare speed of sequence and stream`() {
+        var list1 = createUsers()
+        var list2 = createUsers()
+
+        val timeOfSequenceOperation = getTimeOfSequenceOperation(list1)
+        val timeOfSimpleListOperation = getTimeOfSimpleListOperation(list2);
+
+        assertTrue(timeOfSimpleListOperation > timeOfSequenceOperation)
+    }
+
+    private fun createUsers(): MutableList<User> {
+        var list = mutableListOf<User>()
+        //Начиная примерно со 100 тысяч элементов метод с использованием sequence
+        //начинает значительно выигрывать в скорости.
+        //Чем больше количество элементов в списке, тем больше становится разница в скорости.
+        for (i in 0..1000000) {
+            list += User(i.toString(), i.toString())
+            if (i % 3 == 0) {
+                list[i].fullName = USER_FULL_NAME
+                list[i].status = Status.APPROVED
+            }
+        }
+        return list
+    }
+
+    private fun getTimeOfSequenceOperation(list: MutableList<User>): Long {
+        val startTimeSequence = System.currentTimeMillis()
+        list.asSequence()
+            .filter { it.status == Status.APPROVED }
+            .map { it.fullName }
+            .any { it.startsWith("A", ignoreCase = true) }
+        val endTimeSequence = System.currentTimeMillis()
+        println("sequence time" + (endTimeSequence - startTimeSequence))
+        return endTimeSequence - startTimeSequence
+    }
+
+    private fun getTimeOfSimpleListOperation(list: MutableList<User>): Long {
+        val startTimeList = System.currentTimeMillis()
+        list.filter { it.status == Status.APPROVED }
+            .map { it.fullName }
+            .any { it.startsWith("A", ignoreCase = true) }
+        val endTimeList = System.currentTimeMillis()
+        println("list time" + (endTimeList - startTimeList))
+        return endTimeList - startTimeList
     }
 }

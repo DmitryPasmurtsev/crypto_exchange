@@ -1,4 +1,3 @@
 package exception
 
-class UserStatusException(message: String) : RuntimeException(message) {
-}
+class UserStatusException(message: String) : RuntimeException(message)

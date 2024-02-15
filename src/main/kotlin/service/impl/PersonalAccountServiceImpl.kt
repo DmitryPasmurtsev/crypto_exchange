@@ -9,7 +9,7 @@ import wallet.Wallet
 import java.math.BigDecimal
 import java.time.LocalDateTime
 
-class PersonalAccountServiceImpl : PersonalAccountService {
+object PersonalAccountServiceImpl : PersonalAccountService {
     override fun getBalance(vararg wallets: Wallet): MutableMap<Currency, BigDecimal> {
         val totalBalance = mutableMapOf<Currency, BigDecimal>()
         for (wallet in wallets) {
@@ -27,8 +27,9 @@ class PersonalAccountServiceImpl : PersonalAccountService {
         to: LocalDateTime
     ): List<Transaction> {
         return exchange.transactionHistory
-            .filter { transaction -> transaction.date.isAfter(from) && transaction.date.isBefore(to) }
-            .filter { transaction -> transaction.initiator.owner.id == user.id }
+            .filter { transaction ->
+                transaction.date.isAfter(from) && transaction.date.isBefore(to) && transaction.initiator.owner.id == user.id
+            }
     }
 
     override fun addWallet(user: User, wallet: Wallet) {
