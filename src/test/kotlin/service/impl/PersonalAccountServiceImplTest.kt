@@ -4,11 +4,13 @@ import enums.Currency
 import enums.Status
 import exchange.Exchange
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import service.PersonalAccountService
 import transaction.SwapTransaction
+import transaction.Transaction
 import user.User
 import wallet.Wallet
 import java.math.BigDecimal
@@ -157,5 +159,30 @@ class PersonalAccountServiceImplTest {
         val endTimeList = System.currentTimeMillis()
         println("list time" + (endTimeList - startTimeList))
         return endTimeList - startTimeList
+    }
+
+    @Test
+    fun `infix convert test`() {
+        val swapTransaction = SwapTransaction(
+            wallet1,
+            Currency.BITCOIN,
+            BigDecimal(50),
+            Currency.TON,
+            BigDecimal(60),
+            LocalDateTime.now().minusDays(2)
+        )
+        val convertedTransaction: Transaction? = swapTransaction convert Transaction::class.java
+        val convertedString: String? = swapTransaction convert String::class.java
+
+        assertEquals(swapTransaction.id, convertedTransaction?.id)
+        assertNull(convertedString)
+    }
+
+    private infix fun <T> Any?.convert(clazz: Class<T>): T? {
+        return try {
+            clazz.cast(this)
+        } catch (e: ClassCastException) {
+            null
+        }
     }
 }

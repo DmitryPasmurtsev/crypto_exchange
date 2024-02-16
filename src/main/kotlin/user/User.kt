@@ -20,9 +20,10 @@ data class User(
         }
 
     init {
-        val wallet= Wallet("newWallet","newPass",this)
-        wallet.currencies+= mapOf(Currency.BITCOIN to BigDecimal.TEN)
-        wallets= mutableSetOf(wallet)
+        Wallet("newWallet","newPass",this).let {
+            it.currencies+= mapOf(Currency.BITCOIN to BigDecimal.TEN)
+            wallets= mutableSetOf(it)
+        }
     }
 
     constructor(email: String, fullName: String) : this(
@@ -41,7 +42,7 @@ data class User(
 
     fun destruction(user: User): String {
         val (id, email, _, status) = user
-        return "user with id $id have status $status"
+        return "user with id $id has status $status"
     }
 
     fun getEmailInUpperCaseAndWithoutDomain(user: User): User {

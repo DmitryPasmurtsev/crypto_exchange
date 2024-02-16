@@ -129,7 +129,11 @@ class TradingServiceImpl(val exchanges: MutableSet<Exchange>) : TradingService {
 
     private fun checkPassphrase(passphrase: String, wallet: Wallet) {
         if (passphrase != wallet.passphrase)
-            throw WrongPassphraseException(WRONG_PASSPHRASE)
+            passphraseFail()
+    }
+
+    private fun passphraseFail(): Nothing {
+        throw WrongPassphraseException(WRONG_PASSPHRASE)
     }
 
     private fun checkUserStatus(user: User) {
@@ -186,6 +190,7 @@ class TradingServiceImpl(val exchanges: MutableSet<Exchange>) : TradingService {
         }
         return fibonacci(0, 1, n)
     }
+
 }
 
 fun Pair<Currency, Currency>.swapCurrenciesInRate(): Pair<Currency, Currency> {
