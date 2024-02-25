@@ -1,5 +1,6 @@
 package service.impl
 
+import ApplicationDependencies
 import enums.Currency
 import enums.Status
 import exception.TransactionException
@@ -11,11 +12,14 @@ import kotlin.test.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.verify
 import transaction.SwapTransaction
 import transaction.TradeTransaction
 import user.User
 import wallet.Wallet
 import java.math.BigDecimal
+import java.time.LocalDateTime
 
 class TradingServiceImplTest {
     private lateinit var tradingService: TradingServiceImpl
@@ -237,4 +241,43 @@ class TradingServiceImplTest {
 
         assertEquals(expected, actual)
     }
+
+    @Test
+    fun testPropertyDelegation() {
+        assertEquals(exchange.description, "This is exchange with name ${exchange.name}")
+    }
+
+    @Test
+    fun testExtensionLambda() {
+        val appDependencies = ApplicationDependencies {
+            initConfig {
+                property1 = "Hello"
+                property2 = "world"
+            }
+        }
+        assertEquals(appDependencies.printConfigProperties(), "Hello, world")
+    }
+
+    @Test
+    fun testIsInitialized() {
+        val appDependencies = ApplicationDependencies {
+            initConfig {
+                property1 = "Hello"
+            }
+        }
+        assertEquals(appDependencies.printConfigProperties(), "Hello, Property2 is not initialized")
+    }
+
+    @Test
+    fun testUseMethodForAutoClosable() {
+        val dependencies = mock<ApplicationDependenciesFirstImpl>()
+
+        dependencies.use {
+            println(it.printFirstMessage())
+            println(it.printSecondMessage())
+        }
+
+        verify(dependencies).close()
+    }
+
 }
