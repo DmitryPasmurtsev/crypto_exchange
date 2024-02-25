@@ -185,4 +185,11 @@ class PersonalAccountServiceImplTest {
             null
         }
     }
+
+    @Test
+    fun `test Delegation observable`() {
+        wallet1.description = "FirstDesc"
+        wallet1.description = "SecondDesc"
+        assertEquals(wallet1.msg, "default to FirstDesc FirstDesc to SecondDesc")
+    }
 }

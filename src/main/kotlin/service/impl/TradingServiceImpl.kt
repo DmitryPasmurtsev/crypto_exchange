@@ -128,7 +128,7 @@ class TradingServiceImpl(val exchanges: MutableSet<Exchange>) : TradingService {
     }
 
     private fun checkPassphrase(passphrase: String, wallet: Wallet) {
-        if (passphrase != wallet.passphrase)
+        require(passphrase == wallet.passphrase)
             passphraseFail()
     }
 
@@ -137,7 +137,7 @@ class TradingServiceImpl(val exchanges: MutableSet<Exchange>) : TradingService {
     }
 
     private fun checkUserStatus(user: User) {
-        if (user.status == Status.NEW || user.status == Status.BLOCKED)
+        require (user.status != Status.NEW && user.status != Status.BLOCKED)
             throw UserStatusException(INVALID_USER_STATUS_MESSAGE.format(user.status))
     }
 
@@ -154,7 +154,7 @@ class TradingServiceImpl(val exchanges: MutableSet<Exchange>) : TradingService {
     }
 
     private fun checkRandom(randomNumber: Int) {
-        if (randomNumber !in createRange())
+        require(randomNumber in createRange())
             throw TransactionException(TRANSACTION_FAILED_MESSAGE)
     }
 

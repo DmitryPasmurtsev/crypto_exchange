@@ -16,6 +16,6 @@ data class Exchange(var name: String) {
 
     private inner class DelegatedName : ReadOnlyProperty<Exchange, String> {
         override fun getValue(thisRef: Exchange, property: KProperty<*>): String =
-            "This is exchange with name ${thisRef.name}"
+            "Name of exchange is ${thisRef.name}"
     }
 }
